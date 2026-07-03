@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Warmly — Home-cooked recipes, made with love</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #fff; color: #2C2C2A; }
+
+  .sitenav { display: flex; align-items: center; justify-content: space-between; padding: 16px 48px; border-bottom: 1px solid #E8E0D4; background: #fff; position: sticky; top: 0; z-index: 100; }
+  .logo { font-size: 20px; font-weight: 600; color: #854F0B; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .nav-links { display: flex; gap: 32px; list-style: none; }
+  .nav-links a { font-size: 14px; color: #5F5E5A; text-decoration: none; transition: color 0.2s; }
+  .nav-links a:hover { color: #2C2C2A; }
+  .nav-right { display: flex; gap: 12px; align-items: center; }
+  .btn-primary { background: #854F0B; color: #FAEEDA; border: none; padding: 10px 22px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; transition: background 0.2s; }
+  .btn-primary:hover { background: #633806; }
+  .btn-outline { background: transparent; border: 1.5px solid #854F0B; color: #854F0B; padding: 10px 22px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+  .btn-outline:hover { background: #FAEEDA; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* LANDING */
+  #landing { min-height: 100vh; background: #FAEEDA; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  @keyframes floatBob { 0%,100% { transform: translateY(0) rotate(var(--r,0deg)); } 50% { transform: translateY(-16px) rotate(var(--r2,5deg)); } }
+  .landing-center { text-align: center; position: relative; z-index: 2; padding: 40px; }
+  .landing-logo { font-size: 80px; font-weight: 700; color: #412402; font-family: Georgia, 'Times New Roman', serif; letter-spacing: -2px; animation: fadeUp 0.8s 0.2s both; }
+  .landing-tagline { font-size: 18px; color: #854F0B; letter-spacing: 0.05em; margin-top: 10px; animation: fadeUp 0.7s 0.5s both; }
+  .landing-badge { display: inline-block; background: #EF9F27; color: #412402; font-size: 13px; padding: 6px 20px; border-radius: 20px; margin-top: 18px; font-weight: 500; animation: fadeUp 0.6s 0.7s both; }
+  .landing-enter { margin-top: 32px; display: inline-block; background: #854F0B; color: #FAEEDA; border: none; padding: 16px 48px; border-radius: 10px; font-size: 16px; cursor: pointer; font-weight: 500; animation: fadeUp 0.6s 1s both; transition: background 0.2s, transform 0.15s; }
+  .landing-enter:hover { background: #633806; transform: translateY(-2px); }
+  .landing-scroll { position: absolute; bottom: 32px; left: 0; right: 0; margin: 0 auto; width: fit-content; font-size: 16px; color: #412402; text-align: center; animation: fadeUp 0.5s 1.5s both; font-weight: 800; letter-spacing: 0.06em; }
+  .landing-scroll span { display: block; margin-top: 4px; animation: bounce 1.5s infinite; }
+  @keyframes bounce { 0%,100%{transform:translateY(0);}50%{transform:translateY(6px);} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);} }
+
+  /* HOME */
+  .hero { background: #FAEEDA; padding: 72px 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+  .hero-tag { display: inline-flex; align-items: center; gap: 6px; background: #FAC775; color: #633806; font-size: 13px; padding: 5px 14px; border-radius: 20px; margin-bottom: 20px; font-weight: 500; }
+  .hero h1 { font-size: 52px; font-weight: 700; color: #412402; line-height: 1.15; margin-bottom: 18px; font-family: Georgia, serif; }
+  .hero p { font-size: 16px; color: #5F5E5A; line-height: 1.8; margin-bottom: 28px; }
+  .hero-btns { display: flex; gap: 14px; }
+  .hero-img { background: #FAC775; border-radius: 20px; height: 380px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  .hero-milkshake { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; }
+  .hero-badge { position: absolute; bottom: 20px; left: 20px; background: #fff; border-radius: 12px; padding: 14px 18px; border: 1px solid #E8E0D4; }
+  .hero-badge p { font-size: 12px; color: #5F5E5A; margin-bottom: 2px; }
+  .hero-badge strong { font-size: 15px; color: #412402; }
+
+  .section { padding: 56px 48px; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; }
+  .section-header h2 { font-size: 28px; font-weight: 600; color: #2C2C2A; }
+  .section-header a { font-size: 14px; color: #854F0B; text-decoration: none; cursor: pointer; }
+  .section-header a:hover { text-decoration: underline; }
+
+  .cats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 32px; }
+  .cat-pill { padding: 8px 20px; border-radius: 20px; font-size: 14px; cursor: pointer; border: 1px solid #D3D1C7; background: #fff; color: #5F5E5A; transition: all 0.15s; }
+  .cat-pill:hover { border-color: #854F0B; color: #854F0B; }
+  .cat-pill.active { background: #854F0B; color: #FAEEDA; border-color: #854F0B; }
+
+  .recipe-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  @media (max-width: 900px) { .recipe-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .recipe-grid { grid-template-columns: 1fr; } }
+
+  .recipe-card { background: #fff; border: 1px solid #E8E0D4; border-radius: 16px; overflow: hidden; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
+  .recipe-card:hover { transform: translateY(-4px); border-color: #FAC775; }
+
+  /* ✅ FIXED: card-img now handles both images and emoji */
+  .card-img { height: 180px; display: flex; align-items: center; justify-content: center; font-size: 72px; transition: background 0.2s; overflow: hidden; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .card-body { padding: 16px; }
+  .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .card-tag { font-size: 12px; color: #854F0B; background: #FAEEDA; padding: 3px 10px; border-radius: 10px; font-weight: 500; }
+  .card-heart { font-size: 18px; color: #D3D1C7; cursor: pointer; transition: color 0.15s; background: none; border: none; }
+  .card-heart:hover { color: #854F0B; }
+  .card-title { font-size: 15px; font-weight: 600; color: #2C2C2A; margin-bottom: 10px; line-height: 1.4; }
+  .card-info { display: flex; gap: 14px; font-size: 13px; color: #5F5E5A; }
+  .card-info span { display: flex; align-items: center; gap: 4px; }
+
+  .step-strip { background: #FAEEDA; padding: 56px 48px; }
+  .step-strip h2 { font-size: 28px; font-weight: 600; color: #412402; margin-bottom: 8px; }
+  .step-strip > p { font-size: 16px; color: #633806; margin-bottom: 36px; line-height: 1.7; }
+  .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .step-card { background: #fff; border-radius: 16px; padding: 28px; border: 1px solid #FAC775; }
+  .step-num { width: 40px; height: 40px; background: #EF9F27; color: #412402; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+  .step-card h3 { font-size: 16px; font-weight: 600; color: #2C2C2A; margin-bottom: 8px; }
+  .step-card p { font-size: 14px; color: #5F5E5A; line-height: 1.7; }
+
+  .coll-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .coll-card { border-radius: 16px; padding: 24px; min-height: 140px; display: flex; flex-direction: column; justify-content: flex-end; border: 1px solid #E8E0D4; cursor: pointer; transition: transform 0.2s; }
+  .coll-card:hover { transform: translateY(-3px); }
+  .coll-emoji { font-size: 40px; margin-bottom: 10px; }
+  .coll-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 2px; }
+  .coll-card p { font-size: 13px; opacity: 0.75; }
+
+  .footer { padding: 28px 48px; border-top: 1px solid #E8E0D4; display: flex; justify-content: space-between; align-items: center; }
+  .footer-logo { font-size: 18px; font-weight: 600; color: #854F0B; }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 14px; color: #5F5E5A; text-decoration: none; }
+  .footer-links a:hover { color: #2C2C2A; }
+  .footer-copy { font-size: 13px; color: #B4B2A9; }
+
+  /* RECIPE DETAIL */
+  .recipe-detail { display: grid; grid-template-columns: 1.3fr 0.7fr; min-height: calc(100vh - 65px); }
+  .rd-left { padding: 40px 48px; }
+  .rd-right { padding: 40px 32px; border-left: 1px solid #E8E0D4; background: #FAF9F7; }
+  .rd-hero { background: #FAEEDA; border-radius: 20px; height: 280px; display: flex; align-items: center; justify-content: center; font-size: 120px; margin-bottom: 28px; overflow: hidden; }
+  .rd-hero img { width: 100%; height: 100%; object-fit: cover; border-radius: 20px; }
+  .rd-title { font-size: 36px; font-weight: 700; color: #412402; font-family: Georgia, serif; margin-bottom: 14px; line-height: 1.2; }
+  .rd-meta { display: flex; gap: 24px; font-size: 14px; color: #5F5E5A; margin-bottom: 18px; flex-wrap: wrap; }
+  .rd-meta span { display: flex; align-items: center; gap: 6px; }
+  .rd-tags { display: flex; gap: 8px; margin-bottom: 22px; flex-wrap: wrap; }
+  .rd-tag { font-size: 13px; padding: 4px 14px; border-radius: 20px; background: #FAEEDA; color: #633806; border: 1px solid #FAC775; }
+  .rd-desc { font-size: 15px; color: #5F5E5A; line-height: 1.8; margin-bottom: 28px; }
+  .rd-steps h3 { font-size: 18px; font-weight: 600; color: #2C2C2A; margin-bottom: 18px; }
+  .rd-step { display: flex; gap: 16px; margin-bottom: 18px; }
+  .rd-step-num { width: 32px; height: 32px; min-width: 32px; background: #EF9F27; color: #412402; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; margin-top: 2px; }
+  .rd-step p { font-size: 14px; color: #5F5E5A; line-height: 1.7; }
+  .ingr-section h3 { font-size: 18px; font-weight: 600; color: #2C2C2A; margin-bottom: 16px; }
+  .ingr-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #E8E0D4; font-size: 14px; }
+  .ingr-item:last-child { border-bottom: none; }
+  .ingr-item span:last-child { color: #854F0B; font-weight: 600; }
+  .chef-tip { margin-top: 20px; background: #FAEEDA; border-radius: 12px; padding: 16px 18px; border-left: 3px solid #EF9F27; }
+  .chef-tip p { font-size: 13px; color: #633806; line-height: 1.7; }
+
+  /* SAVED */
+  .saved-section { padding: 40px 48px; }
+  .saved-header { margin-bottom: 28px; }
+  .saved-header h1 { font-size: 32px; font-weight: 700; color: #2C2C2A; margin-bottom: 4px; }
+  .saved-header p { font-size: 15px; color: #5F5E5A; }
+  .saved-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 40px; }
+  .saved-coll { border-radius: 16px; padding: 20px; border: 1px solid #E8E0D4; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: transform 0.2s; }
+  .saved-coll:hover { transform: translateY(-2px); }
+  .saved-coll-icon { width: 52px; height: 52px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0; }
+  .saved-coll h3 { font-size: 15px; font-weight: 600; color: #2C2C2A; margin-bottom: 2px; }
+  .saved-coll p { font-size: 13px; color: #5F5E5A; }
+  .saved-coll-arrow { margin-left: auto; font-size: 20px; color: #D3D1C7; }
+  .saved-recent h2 { font-size: 22px; font-weight: 600; color: #2C2C2A; margin-bottom: 16px; }
+  .saved-row { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid #E8E0D4; }
+  .saved-row:last-child { border-bottom: none; }
+  .saved-thumb { width: 56px; height: 56px; border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+  .saved-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .saved-thumb-emoji { width: 56px; height: 56px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; }
+  .saved-row h4 { font-size: 15px; font-weight: 600; color: #2C2C2A; margin-bottom: 2px; }
+  .saved-row p { font-size: 13px; color: #5F5E5A; }
+  .saved-acts { margin-left: auto; display: flex; gap: 10px; font-size: 20px; color: #D3D1C7; cursor: pointer; }
+  .saved-acts span:hover { color: #854F0B; }
+  .saved-new { border-style: dashed !important; }
+
+  /* FEEDBACK */
+  .feedback-wrap { background: #FAEEDA; padding: 64px 48px; border-top: 1px solid #E8E0D4; }
+  .feedback-inner { max-width: 640px; margin: 0 auto; text-align: center; }
+  .fb-card { background: #fff; border-radius: 20px; padding: 36px; border: 1px solid #FAC775; text-align: left; }
+  .fb-label { display: block; font-size: 13px; font-weight: 600; color: #412402; margin-bottom: 8px; letter-spacing: 0.03em; }
+  .fb-input { width: 100%; padding: 12px 16px; border: 1.5px solid #E8E0D4; border-radius: 10px; font-size: 14px; color: #2C2C2A; outline: none; font-family: inherit; transition: border 0.2s; }
+  .fb-input:focus { border-color: #854F0B; }
+  .fb-submit { width: 100%; background: #854F0B; color: #FAEEDA; border: none; padding: 14px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.2s; margin-top: 4px; }
+  .fb-submit:hover { background: #633806; }
+  .star { font-size: 28px; cursor: pointer; opacity: 0.3; transition: opacity 0.15s; }
+  .personal-footer { background: #412402; padding: 28px 48px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ LANDING ═══ -->
+<div id="landing" class="page active">
+  <div style="min-height:100vh;background:#FAEEDA;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+    <div id="suppliesContainer" style="position:absolute;inset:0;pointer-events:none;"></div>
+    <div class="landing-center">
+      <div class="landing-logo">Warmly</div>
+      <div class="landing-tagline">Home-cooked recipes, made with love</div>
+      <div><span class="landing-badge">100+ recipes &nbsp;·&nbsp; Step-by-step cooking &nbsp;·&nbsp; Save your favourites</span></div>
+      <div><button class="landing-enter" onclick="goHome()">Enter the kitchen &nbsp;&nbsp;→</button></div>
+    </div>
+    <div class="landing-scroll">↓<span>scroll to explore</span></div>
+  </div>
+</div>
+
+<!-- ═══ HOME ═══ -->
+<div id="home" class="page">
+  <nav class="sitenav">
+    <a class="logo" onclick="showPage('landing')" style="cursor:pointer;">🍳 Warmly</a>
+    <ul class="nav-links">
+      <li><a href="#">Explore</a></li>
+      <li><a href="#">Collections</a></li>
+      <li><a href="#">Step-by-step</a></li>
+      <li><a onclick="showPage('saved')" href="#">Saved</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="btn-outline">Sign in</button>
+      <button class="btn-primary">Get started</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div>
+      <div class="hero-tag">🔥 Trending this week</div>
+      <h1>Cook with heart,<br>eat with joy.</h1>
+      <p>Discover thousands of home-cooked recipes — step-by-step guides for every skill level, from quick weeknight dinners to slow Sunday feasts.</p>
+      <div class="hero-btns">
+        <button class="btn-primary" onclick="document.querySelector('#home .section').scrollIntoView({behavior:'smooth'})">Browse recipes</button>
+        <button class="btn-outline" onclick="showPage('saved')">My collections</button>
+      </div>
+    </div>
+    <!-- ✅ FIXED: hero-img properly closed, image added -->
+    <div class="hero-img">
+      <img src="images/milkshake.png" alt="Chocolate Milkshake" class="hero-milkshake">
+      <div class="hero-badge">
+        <p>Recipe of the day</p>
+        <strong>Choco Milkshake</strong>
+      </div>
+    </div>
+  </div><!-- ✅ hero div closed here -->
+
+  <div class="section">
+    <div class="section-header">
+      <h2>Browse recipes</h2>
+      <a href="#">See all →</a>
+    </div>
+    <div class="cats">
+      <div class="cat-pill active" onclick="setActive(this)">All</div>
+      <div class="cat-pill" onclick="setActive(this)">Breakfast</div>
+      <div class="cat-pill" onclick="setActive(this)">Lunch</div>
+      <div class="cat-pill" onclick="setActive(this)">Dinner</div>
+      <div class="cat-pill" onclick="setActive(this)">Snacks</div>
+      <div class="cat-pill" onclick="setActive(this)">Desserts</div>
+    </div>
+
+    <div class="recipe-grid">
+
+      <!-- White Sauce Pasta — real image -->
+      <div class="recipe-card" onclick="showPage('recipe-pasta')">
+        <div class="card-img">
+          <img src="images/whitesauce.png" alt="White Sauce Pasta">
+        </div>
+        <div class="card-body">
+          <div class="card-meta"><span class="card-tag">Lunch/Dinner</span><button class="card-heart" onclick="event.stopPropagation();this.style.color='#854F0B'">♥</button></div>
+          <div class="card-title">White Sauce Pasta</div>
+          <div class="card-info"><span>🕐 30 min</span><span>⭐ 4.6</span><span>👤 2 servings</span></div>
+        </div>
+      </div>
+
+      <!-- Dal Khichdi — real image -->
+      <div class="recipe-card" onclick="showPage('recipe-khichdi')">
+        <div class="card-img">
+          <img src="images/dalkhichdi.png" alt="Dal Khichdi">
+        </div>
+        <div class="card-body">
+          <div class="card-meta"><span class="card-tag">Dinner</span><button class="card-heart" onclick="event.stopPropagation();this.style.color='#854F0B'">♥</button></div>
+          <div class="card-title">Dal Khichdi</div>
+          <div class="card-info"><span>🕐 25 min</span><span>⭐ 4.8</span><span>👤 2 servings</span></div>
+        </div>
+      </div>
+
+      <!-- Hot Choco Cake — real image -->
+      <div class="recipe-card" onclick="showPage('recipe-pasta')">
+        <div class="card-img">
+          <img src="images/hotchoco.png" alt="Hot Choco Cake">
+        </div>
+        <div class="card-body">
+          <div class="card-meta"><span class="card-tag">Dessert</span><button class="card-heart" onclick="event.stopPropagation();this.style.color='#854F0B'">♥</button></div>
+          <div class="card-title">Hot Choco Cake</div>
+          <div class="card-info"><span>🕐 35 min</span><span>⭐ 4.9</span><span>👤 2 servings</span></div>
+        </div>
+      </div>
+
+      <!-- Garlic Bread — real image -->
+      <div class="recipe-card" onclick="showPage('recipe-pasta')">
+        <div class="card-img">
+          <img src="images/garlicbread.png" alt="Garlic Bread">
+        </div>
+        <div class="card-body">
+          <div class="card-meta"><span class="card-tag">Dinner</span><button class="card-heart" onclick="event.stopPropagation();this.style.color='#854F0B'">♥</button></div>
+          <div class="card-title">Garlic Bread</div>
+          <div class="card-info"><span>🕐 50 min</span><span>⭐ 4.9</span><span>👤 2 servings</span></div>
+        </div>
+      </div>
+
+      <!-- Mac & Cheese — real image -->
+      <div class="recipe-card" onclick="showPage('recipe-pasta')">
+        <div class="card-img">
+          <img src="images/mac&cheese.png" alt="Mac and Cheese">
+        </div>
+        <div class="card-body">
+          <div class="card-meta"><span class="card-tag">Dinner</span><button class="card-heart" onclick="event.stopPropagation();this.style.color='#854F0B'">♥</button></div>
+          <div class="card-title">Mac & Cheese</div>
+          <div class="card-info"><span>🕐 20 min</span><span>⭐ 4.7</span><span>👤 2 servings</span></div>
+        </div>
+      </div>
+
+      <!-- Cheese Corn Balls — real image -->
+      <div class="recipe-card" onclick="showPage('recipe-pasta')">
+        <div class="card-img">
+          <img src="images/cheesecorn.png" alt="Cheese Corn Balls">
+        </div>
+        <div class="card-body">
+          <div class="card-meta"><span class="card-tag">Snack</span><button class="card-heart" onclick="event.stopPropagation();this.style.color='#854F0B'">♥</button></div>
+          <div class="card-title">Cheese Corn Balls</div>
+          <div class="card-info"><span>🕐 35 min</span><span>⭐ 4.8</span><span>👤 8 servings</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div><!-- ✅ section div closed -->
+
+  <div class="step-strip">
+    <h2>Cook step by step</h2>
+    <p>Every recipe comes with a guided cooking mode — so your hands stay clean and you never lose your place.</p>
+    <div class="steps-grid">
+      <div class="step-card"><div class="step-num">1</div><h3>Pick your recipe</h3><p>Search by dish name, ingredient, or mood. Filter by time, servings, or dietary needs.</p></div>
+      <div class="step-card"><div class="step-num">2</div><h3>Follow along easily</h3><p>Each step is clearly laid out. Read at your own pace without losing your place.</p></div>
+      <div class="step-card"><div class="step-num">3</div><h3>Save your favourites</h3><p>Heart recipes as you go. Organise them into collections and cook them again anytime.</p></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header"><h2>My collections</h2><a href="#" onclick="showPage('saved')">Manage →</a></div>
+    <div class="coll-grid">
+      <div class="coll-card" style="background:#FAEEDA;" onclick="showPage('saved')"><div class="coll-emoji">🌙</div><h3 style="color:#412402;">Weeknight dinners</h3><p style="color:#633806;">12 recipes</p></div>
+      <div class="coll-card" style="background:#EAF3DE;" onclick="showPage('saved')"><div class="coll-emoji">🌿</div><h3 style="color:#173404;">Lazy Fills</h3><p style="color:#3B6D11;">8 recipes</p></div>
+      <div class="coll-card" style="background:#E1F5EE;" onclick="showPage('saved')"><div class="coll-emoji">🍰</div><h3 style="color:#04342C;">Bakes & desserts</h3><p style="color:#0F6E56;">6 recipes</p></div>
+    </div>
+  </div>
+
+  <!-- FEEDBACK -->
+  <div class="feedback-wrap">
+    <div class="feedback-inner">
+      <div style="font-size:36px;margin-bottom:12px;">💌</div>
+      <h2 style="font-size:32px;font-weight:700;color:#412402;font-family:Georgia,serif;margin-bottom:8px;">Leave me a message</h2>
+      <p style="font-size:15px;color:#633806;line-height:1.7;margin-bottom:36px;">Tried a recipe? Have a suggestion? Just want to say hi? I'd love to hear from you.</p>
+      <div class="fb-card" id="feedback-form">
+        <div style="margin-bottom:20px;">
+          <label class="fb-label">Your name</label>
+          <input id="fb-name" type="text" placeholder="e.g. Priya Sharma" class="fb-input">
+        </div>
+        <div style="margin-bottom:20px;">
+          <label class="fb-label">Your message</label>
+          <textarea id="fb-message" rows="4" placeholder="Tell me what you think about Warmly, a recipe you tried, or anything at all..." class="fb-input" style="resize:vertical;"></textarea>
+        </div>
+        <div style="margin-bottom:24px;">
+          <label class="fb-label">How would you rate Warmly?</label>
+          <div style="display:flex;gap:8px;">
+            <span class="star" data-val="1">⭐</span>
+            <span class="star" data-val="2">⭐</span>
+            <span class="star" data-val="3">⭐</span>
+            <span class="star" data-val="4">⭐</span>
+            <span class="star" data-val="5">⭐</span>
+          </div>
+        </div>
+        <button class="fb-submit" onclick="submitFeedback()">Send message 🍳</button>
+      </div>
+      <div id="feedback-success" style="display:none;background:#fff;border-radius:20px;padding:48px 36px;border:1px solid #FAC775;text-align:center;">
+        <div style="font-size:56px;margin-bottom:16px;">🎉</div>
+        <h3 style="font-size:22px;font-weight:700;color:#412402;font-family:Georgia,serif;margin-bottom:8px;">Thank you so much!</h3>
+        <p style="font-size:15px;color:#633806;line-height:1.7;" id="success-msg"></p>
+        <button onclick="resetFeedback()" style="margin-top:24px;background:transparent;border:1.5px solid #854F0B;color:#854F0B;padding:10px 28px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:500;">Leave another message</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-logo">🍳 Warmly</div>
+    <div class="footer-links"><a href="#">About</a><a href="#">Privacy</a><a href="#">Contact</a><a href="#">Instagram</a></div>
+    <div class="footer-copy">© 2025 Warmly · Made with love by <strong style="color:#854F0B;">Nittya Tapre</strong></div>
+  </footer>
+  <div class="personal-footer">
+    <div style="color:#FAEEDA;font-size:18px;font-weight:700;font-family:Georgia,serif;">🍳 Warmly</div>
+    <div style="color:#FAC775;font-size:14px;text-align:center;">Designed & built with love by <strong style="color:#FAEEDA;">Nittya Tapre</strong></div>
+    <div style="color:#FAC775;font-size:13px;">© 2025 · Nagpur, India 🇮🇳</div>
+  </div>
+</div><!-- ✅ home page div closed -->
+
+<!-- ═══ RECIPE — WHITE SAUCE PASTA ═══ -->
+<div id="recipe-pasta" class="page">
+  <nav class="sitenav">
+    <a class="logo" onclick="showPage('landing')" style="cursor:pointer;">🍳 Warmly</a>
+    <ul class="nav-links"><li><a onclick="showPage('home')" href="#">← Back to recipes</a></li></ul>
+    <div class="nav-right">
+      <button class="btn-outline" onclick="this.style.color='#854F0B'">♥ Save recipe</button>
+    </div>
+  </nav>
+  <div class="recipe-detail">
+    <div class="rd-left">
+      <div class="rd-hero">
+        <img src="images/whitesauce.png" alt="White Sauce Pasta">
+      </div>
+      <div class="rd-title">White Sauce Pasta</div>
+      <div class="rd-meta">
+        <span>🕐 30 min total</span>
+        <span>🔥 Medium difficulty</span>
+        <span>⭐ 4.6 (137 reviews)</span>
+        <span>👤 2 servings</span>
+      </div>
+      <div class="rd-tags">
+        <span class="rd-tag">Lunch/Dinner</span><span class="rd-tag">Fancy food</span><span class="rd-tag">Creamy</span><span class="rd-tag">Cheesy</span><span class="rd-tag">Veggies</span>
+      </div>
+      <div class="rd-desc">Creamy, cheesy, and irresistibly delicious, White Sauce Pasta is a perfect blend of rich flavors and comforting goodness. Every bite is smooth, indulgent, and satisfying.</div>
+      <div class="rd-steps">
+        <h3>How to make it</h3>
+        <div class="rd-step"><div class="rd-step-num">1</div><p>Boil two cups of pasta with a pinch of salt and a little oil. Once cooked, strain, wash with cold water and toss with a little oil to prevent sticking.</p></div>
+        <div class="rd-step"><div class="rd-step-num">2</div><p>Meanwhile, sauté all veggies (corn, capsicum, onion, mushrooms, broccoli) in 1 tsp of oil until lightly cooked. Keep aside.</p></div>
+        <div class="rd-step"><div class="rd-step-num">3</div><p>In a wok, add 2 tbsp butter and 2 tbsp all-purpose flour. Mix until golden brown, then add 2 cups of milk and some pasta water. Keep stirring continuously to avoid lumps. Adjust consistency with water or milk.</p></div>
+        <div class="rd-step"><div class="rd-step-num">4</div><p>Add chilli flakes, oregano, lots of cheese, all the cooked veggies, and a pinch of salt to the sauce. Stir well.</p></div>
+        <div class="rd-step"><div class="rd-step-num">5</div><p>Add the boiled pasta to the sauce and mix properly. Serve hot garnished with lots of shredded cheese. 🍽️</p></div>
+      </div>
+    </div>
+    <div class="rd-right">
+      <div class="ingr-section">
+        <h3>Ingredients <span style="font-size:14px;color:#854F0B;font-weight:400;">— 2 servings</span></h3>
+        <div class="ingr-item"><span>Pasta</span><span>2 cups</span></div>
+        <div class="ingr-item"><span>Butter</span><span>2 tbsp</span></div>
+        <div class="ingr-item"><span>All purpose flour</span><span>2 tbsp</span></div>
+        <div class="ingr-item"><span>Mixed veggies</span><span>1 of each</span></div>
+        <div class="ingr-item"><span>Milk</span><span>2 cups</span></div>
+        <div class="ingr-item"><span>Chilli flakes</span><span>1 tsp</span></div>
+        <div class="ingr-item"><span>Oregano</span><span>1 tsp</span></div>
+        <div class="ingr-item"><span>Cheese, grated</span><span>as needed</span></div>
+        <div class="ingr-item"><span>Oil</span><span>3 tbsp</span></div>
+        <div class="ingr-item"><span>Salt & pepper</span><span>to taste</span></div>
+      </div>
+      <div class="chef-tip">
+        <p>💡 <strong>Chef's tip (by Nittya):</strong> Add more pasta water to the sauce to make it extra saucy. Be careful with salt as it is added at multiple stages — a little each time is the key!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ RECIPE — DAL KHICHDI ═══ -->
+<div id="recipe-khichdi" class="page">
+  <nav class="sitenav">
+    <a class="logo" onclick="showPage('landing')" style="cursor:pointer;">🍳 Warmly</a>
+    <ul class="nav-links"><li><a onclick="showPage('home')" href="#">← Back to recipes</a></li></ul>
+    <div class="nav-right">
+      <button class="btn-outline" onclick="this.style.color='#854F0B'">♥ Save recipe</button>
+    </div>
+  </nav>
+  <div class="recipe-detail">
+    <div class="rd-left">
+      <div class="rd-hero">
+        <img src="images/dalkhichdi.png" alt="Dal Khichdi">
+      </div>
+      <div class="rd-title">Dal Khichdi</div>
+      <div class="rd-meta">
+        <span>🕐 25 min total</span>
+        <span>🔥 Easy difficulty</span>
+        <span>⭐ 4.8 (142 reviews)</span>
+        <span>👤 2 servings</span>
+      </div>
+      <div class="rd-tags">
+        <span class="rd-tag">Dinner</span><span class="rd-tag">Comfort food</span><span class="rd-tag">Slow cook</span><span class="rd-tag">Healthy</span><span class="rd-tag">Light</span>
+      </div>
+      <div class="rd-desc">Wholesome, flavorful, and comforting, Dal Khichdi is a timeless classic loved for its simplicity and goodness. It's the perfect meal for any time of the day.</div>
+      <div class="rd-steps">
+        <h3>How to make it</h3>
+        <div class="rd-step"><div class="rd-step-num">1</div><p>In a pressure cooker, cook Dal and Rice together with a pinch of salt and turmeric for 4-5 whistles.</p></div>
+        <div class="rd-step"><div class="rd-step-num">2</div><p>Take a wok and prepare the Tadka — add oil, cumin seeds, kadi patta, green chillies, red chillies, ginger garlic paste and finely chopped tomatoes.</p></div>
+        <div class="rd-step"><div class="rd-step-num">3</div><p>After tomatoes soften, add salt to taste, hing, chilly powder, coriander powder, turmeric, and garam masala. Let it all cook on low flame.</p></div>
+        <div class="rd-step"><div class="rd-step-num">4</div><p>When the masala is cooked, add the dal and rice mixture to the wok and stir so the masala is evenly mixed.</p></div>
+        <div class="rd-step"><div class="rd-step-num">5</div><p>Add boiling hot water to the khichdi as per your preferred consistency. Mix properly and cook for 5-6 more minutes. Serve with Papad or Achaar. 🍽️</p></div>
+      </div>
+    </div>
+    <div class="rd-right">
+      <div class="ingr-section">
+        <h3>Ingredients <span style="font-size:14px;color:#854F0B;font-weight:400;">— 2 servings</span></h3>
+        <div class="ingr-item"><span>Rice</span><span>2.5 cups</span></div>
+        <div class="ingr-item"><span>Dal</span><span>3 cups</span></div>
+        <div class="ingr-item"><span>Tomato</span><span>1 large</span></div>
+        <div class="ingr-item"><span>Garlic cloves, minced</span><span>4</span></div>
+        <div class="ingr-item"><span>Fresh ginger, grated</span><span>1 tbsp</span></div>
+        <div class="ingr-item"><span>Ground cumin</span><span>2 tsp</span></div>
+        <div class="ingr-item"><span>Ground coriander</span><span>1 tsp</span></div>
+        <div class="ingr-item"><span>Turmeric powder</span><span>½ tsp</span></div>
+        <div class="ingr-item"><span>Oil</span><span>2 tbsp</span></div>
+        <div class="ingr-item"><span>Salt & pepper</span><span>to taste</span></div>
+      </div>
+      <div class="chef-tip">
+        <p>💡 <strong>Chef's tip (by Nittya):</strong> Add a tablespoon of butter in the oil before making the Tadka, and also while serving the Khichdi. It makes all the difference!</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SAVED ═══ -->
+<div id="saved" class="page">
+  <nav class="sitenav">
+    <a class="logo" onclick="showPage('landing')" style="cursor:pointer;">🍳 Warmly</a>
+    <ul class="nav-links">
+      <li><a onclick="showPage('home')" href="#">Explore</a></li>
+      <li><a href="#">Collections</a></li>
+      <li><a href="#" style="color:#854F0B;font-weight:600;border-bottom:2px solid #854F0B;padding-bottom:3px;">Saved</a></li>
+    </ul>
+    <div class="nav-right">
+      <button class="btn-primary">+ New collection</button>
+    </div>
+  </nav>
+  <div class="saved-section">
+    <div class="saved-header">
+      <h1>My collections</h1>
+      <p>3 collections · recipes saved</p>
+    </div>
+    <div class="saved-grid">
+      <div class="saved-coll" style="background:#FAEEDA;border-color:#FAC775;">
+        <div class="saved-coll-icon" style="background:#FAC775;">🌙</div>
+        <div><h3 style="color:#412402;">Weeknight dinners</h3><p style="color:#633806;">12 recipes</p></div>
+        <span class="saved-coll-arrow">›</span>
+      </div>
+      <div class="saved-coll" style="background:#EAF3DE;border-color:#C0DD97;">
+        <div class="saved-coll-icon" style="background:#C0DD97;">🌿</div>
+        <div><h3 style="color:#173404;">Lazy Fills</h3><p style="color:#3B6D11;">8 recipes</p></div>
+        <span class="saved-coll-arrow">›</span>
+      </div>
+      <div class="saved-coll" style="background:#E1F5EE;border-color:#9FE1CB;">
+        <div class="saved-coll-icon" style="background:#9FE1CB;">🍰</div>
+        <div><h3 style="color:#04342C;">Bakes & desserts</h3><p style="color:#0F6E56;">6 recipes</p></div>
+        <span class="saved-coll-arrow">›</span>
+      </div>
+      <div class="saved-coll saved-new" style="border-color:#D3D1C7;">
+        <div class="saved-coll-icon" style="background:#F1EFE8;color:#888780;font-size:22px;">+</div>
+        <div><h3>New collection</h3><p>Organise your saves</p></div>
+      </div>
+    </div>
+    <div class="saved-recent">
+      <h2>Recently saved</h2>
+      <div class="saved-row">
+        <div class="saved-thumb"><img src="images/dalkhichdi.png" alt="Dal Khichdi"></div>
+        <div><h4>Dal Khichdi</h4><p>Dinner · 25 min · Saved 2 days ago</p></div>
+        <div class="saved-acts"><span style="color:#854F0B;">♥</span><span>⋮</span></div>
+      </div>
+      <div class="saved-row">
+        <div class="saved-thumb"><img src="images/whitesauce.png" alt="White Sauce Pasta"></div>
+        <div><h4>White Sauce Pasta</h4><p>Lunch · 30 min · Saved 5 days ago</p></div>
+        <div class="saved-acts"><span style="color:#854F0B;">♥</span><span>⋮</span></div>
+      </div>
+      <div class="saved-row">
+        <div class="saved-thumb"><img src="images/hotchoco.png" alt="Hot Choco Cake"></div>
+        <div><h4>Hot Choco Cake</h4><p>Dessert · 35 min · Saved 1 week ago</p></div>
+        <div class="saved-acts"><span>♥</span><span>⋮</span></div>
+      </div>
+      <div class="saved-row">
+        <div class="saved-thumb"><img src="images/garlicbread.png" alt="Garlic Bread"></div>
+        <div><h4>Garlic Bread</h4><p>Dinner · 50 min · Saved 2 weeks ago</p></div>
+        <div class="saved-acts"><span>♥</span><span>⋮</span></div>
+      </div>
+    </div>
+  </div>
+  <footer class="footer">
+    <div class="footer-logo">🍳 Warmly</div>
+    <div class="footer-links"><a href="#">About</a><a href="#">Privacy</a><a href="#">Contact</a></div>
+    <div class="footer-copy">© 2025 Warmly · Made with love by <strong style="color:#854F0B;">Nittya Tapre</strong></div>
+  </footer>
+</div>
+
+<script>
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+  function goHome() { showPage('home'); }
+  function setActive(el) {
+    document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+  }
+  const supplies = [
+    {e:'🍳',top:'2%',left:'2%',r:'-12deg',r2:'-6deg',dur:'3.2s',size:'52px'},
+    {e:'🔪',top:'2%',left:'20%',r:'8deg',r2:'14deg',dur:'2.8s',size:'46px'},
+    {e:'🥄',top:'1%',left:'40%',r:'-5deg',r2:'2deg',dur:'3.5s',size:'48px'},
+    {e:'🫕',top:'2%',left:'60%',r:'10deg',r2:'4deg',dur:'2.9s',size:'52px'},
+    {e:'🧂',top:'1%',left:'78%',r:'-8deg',r2:'-2deg',dur:'3.1s',size:'44px'},
+    {e:'🧅',top:'1%',right:'2%',r:'6deg',r2:'12deg',dur:'3.3s',size:'46px'},
+    {e:'🌿',top:'18%',left:'1%',r:'-10deg',r2:'-4deg',dur:'2.7s',size:'48px'},
+    {e:'🍴',top:'18%',right:'1%',r:'12deg',r2:'6deg',dur:'3.4s',size:'44px'},
+    {e:'🧄',top:'34%',left:'1%',r:'-4deg',r2:'4deg',dur:'3.1s',size:'44px'},
+    {e:'🫙',top:'34%',right:'1%',r:'-6deg',r2:'2deg',dur:'3s',size:'46px'},
+    {e:'🌶️',top:'50%',left:'1%',r:'12deg',r2:'6deg',dur:'3.3s',size:'46px'},
+    {e:'🥕',top:'50%',right:'1%',r:'12deg',r2:'6deg',dur:'2.6s',size:'40px'},
+    {e:'🍋',top:'65%',left:'1%',r:'8deg',r2:'2deg',dur:'2.9s',size:'46px'},
+    {e:'🥣',top:'65%',right:'1%',r:'-8deg',r2:'-2deg',dur:'2.8s',size:'48px'},
+    {e:'🧁',top:'80%',left:'1%',r:'-6deg',r2:'2deg',dur:'3.3s',size:'42px'},
+    {e:'🍅',top:'80%',right:'1%',r:'8deg',r2:'14deg',dur:'2.9s',size:'42px'},
+    {e:'🥘',bottom:'2%',left:'2%',r:'-14deg',r2:'-8deg',dur:'3.4s',size:'54px'},
+    {e:'🫚',bottom:'2%',left:'20%',r:'6deg',r2:'12deg',dur:'3s',size:'48px'},
+    {e:'🥗',bottom:'2%',left:'40%',r:'10deg',r2:'4deg',dur:'3.2s',size:'52px'},
+    {e:'🥞',bottom:'2%',left:'60%',r:'-5deg',r2:'2deg',dur:'2.8s',size:'46px'},
+    {e:'🍜',bottom:'2%',left:'78%',r:'8deg',r2:'14deg',dur:'3.1s',size:'48px'},
+    {e:'🧆',bottom:'2%',right:'2%',r:'-8deg',r2:'-2deg',dur:'2.7s',size:'44px'},
+    {e:'🥑',top:'12%',left:'10%',r:'5deg',r2:'11deg',dur:'3.6s',size:'38px'},
+    {e:'🍄',top:'12%',right:'10%',r:'-9deg',r2:'-3deg',dur:'2.9s',size:'40px'},
+    {e:'🧇',top:'44%',left:'8%',r:'3deg',r2:'9deg',dur:'3.2s',size:'38px'},
+    {e:'🍯',top:'44%',right:'8%',r:'-7deg',r2:'-1deg',dur:'3s',size:'40px'},
+    {e:'🥦',top:'72%',left:'8%',r:'11deg',r2:'5deg',dur:'2.8s',size:'38px'},
+    {e:'🍇',top:'72%',right:'8%',r:'-4deg',r2:'4deg',dur:'3.4s',size:'40px'},
+  ];
+  window.addEventListener('load', () => {
+    const container = document.getElementById('suppliesContainer');
+    supplies.forEach((s, i) => {
+      const el = document.createElement('div');
+      el.style.cssText = `
+        position:absolute;font-size:${s.size};
+        ${s.top?'top:'+s.top+';':''}${s.bottom?'bottom:'+s.bottom+';':''}
+        ${s.left?'left:'+s.left+';':''}${s.right?'right:'+s.right+';':''}
+        --r:${s.r};--r2:${s.r2};
+        opacity:0;transform:scale(0.3) translateY(30px);
+        transition:opacity 0.6s ${i*0.04}s, transform 0.6s ${i*0.04}s;
+        animation:floatBob ${s.dur} ${i*0.12}s infinite ease-in-out;
+      `;
+      el.textContent = s.e;
+      container.appendChild(el);
+      setTimeout(() => { el.style.opacity='1'; el.style.transform='scale(1) translateY(0)'; }, 100 + i * 40);
+    });
+  });
+  let selectedRating = 0;
+  document.querySelectorAll('.star').forEach(star => {
+    star.addEventListener('click', function() {
+      selectedRating = parseInt(this.dataset.val);
+      document.querySelectorAll('.star').forEach((s, i) => { s.style.opacity = i < selectedRating ? '1' : '0.3'; });
+    });
+    star.addEventListener('mouseover', function() {
+      const val = parseInt(this.dataset.val);
+      document.querySelectorAll('.star').forEach((s, i) => { s.style.opacity = i < val ? '1' : '0.3'; });
+    });
+    star.addEventListener('mouseout', function() {
+      document.querySelectorAll('.star').forEach((s, i) => { s.style.opacity = i < selectedRating ? '1' : '0.3'; });
+    });
+  });
+  function submitFeedback() {
+    const name = document.getElementById('fb-name').value.trim();
+    const message = document.getElementById('fb-message').value.trim();
+    if (!name) { alert('Please enter your name 😊'); return; }
+    if (!message) { alert('Please write a message 💌'); return; }
+    const stars = selectedRating > 0 ? ' · ' + '⭐'.repeat(selectedRating) : '';
+    document.getElementById('success-msg').textContent = name + ', your message has been received' + stars + '. Nittya will love reading this!';
+    document.getElementById('feedback-form').style.display = 'none';
+    document.getElementById('feedback-success').style.display = 'block';
+  }
+  function resetFeedback() {
+    document.getElementById('fb-name').value = '';
+    document.getElementById('fb-message').value = '';
+    selectedRating = 0;
+    document.querySelectorAll('.star').forEach(s => s.style.opacity = '0.3');
+    document.getElementById('feedback-form').style.display = 'block';
+    document.getElementById('feedback-success').style.display = 'none';
+  }
+</script>
+</body>
+</html>
